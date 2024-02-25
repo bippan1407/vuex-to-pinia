@@ -1,5 +1,6 @@
 export const replaceProperty = ({ root, j }, syntaxToAdd) => {
     const propertiesToReplace = ['state', 'mutations', 'actions', 'getters']
+
     propertiesToReplace.forEach((property) => {
         console.log(property)
         root.find(j.VariableDeclaration, (path) => {
@@ -17,6 +18,8 @@ export const replaceProperty = ({ root, j }, syntaxToAdd) => {
     })
 
     root.find(j.Program).forEach((path) => {
-        j(path).get('body').push(syntaxToAdd)
+        const body = j(path).get('body')
+        body.unshift("import { defineStore } from 'pinia';\n")
+        body.push(syntaxToAdd)
     })
 }

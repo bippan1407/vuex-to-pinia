@@ -1,6 +1,11 @@
 import vueCodemod from 'vue-codemod'
 import { readFileSync, writeFileSync, statSync } from 'fs'
-import { getFileName, readJson, writeToJsonFile } from './utility/index.js'
+import {
+    capitalizeFirstLetter,
+    getFileName,
+    readJson,
+    writeToJsonFile,
+} from './utility/index.js'
 import vuexProperties from './vuexProperties/index.js'
 import configOptionsService from './configOptionsService.js'
 import { basename, join } from 'path'
@@ -129,7 +134,7 @@ class Codemod {
     }
 
     getPiniaTemplate(storeName, stateSyntax, actionSyntax, getterSyntax) {
-        return `export const use${storeName} = defineStore(${storeName},{
+        return `export const use${capitalizeFirstLetter(storeName)} = defineStore('${storeName}',{
     state: ${stateSyntax},
     actions: ${actionSyntax},
     getters: ${getterSyntax}
