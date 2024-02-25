@@ -1,0 +1,9 @@
+{
+    "isDev": true,
+    "projectLocation": "/Users/bippan/Documents/code/vuex-to-pinia/testData/info.js",
+    "transformedFolderLocation": null,
+    "dryRun": false,
+    "emptyTransformFolder": false,
+    "saveErrorLogs": true,
+    "saveErrorLogsFilePath": "/Users/bippan/Documents/code/vuex-to-pinia/"
+}

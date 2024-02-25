@@ -1,0 +1,29 @@
+{
+    "/Users/bippan/Documents/code/vuex-to-pinia/testData/info.js": {
+        "storeName": "info",
+        "stateNames": [
+            { "name": "subject", "type": "Property", "newName": "subject" },
+            {
+                "name": "getInitialState",
+                "type": "SpreadElement",
+                "argumentType": "CallExpression",
+                "newName": "getInitialState"
+            }
+        ],
+        "mutationNames": [
+            { "name": "updateName", "newName": "updateNameMutation" },
+            { "name": "updateSubject", "newName": "updateSubjectMutation" }
+        ],
+        "actionNames": [
+            { "name": "updateName", "newName": "updateName" },
+            { "name": "updateNameApi", "newName": "updateNameApi" },
+            { "name": "updateSubject", "newName": "updateSubject" }
+        ],
+        "getterNames": [
+            { "name": "getNewName", "newName": "getNewName" },
+            { "name": "subject", "newName": "subjectGetter" },
+            { "name": "getDefaultName", "newName": "getDefaultName" }
+        ]
+    }
+}
+

@@ -1,0 +1,43 @@
+{
+    "name": "vuex-to-pinia",
+    "version": "1.0.0",
+    "description": "convert code from vuex to pinia",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "format:check": "prettier --check .",
+        "format:write": "prettier --write .",
+        "lint:check": "eslint .",
+        "lint:fix": "eslint --fix ."
+    },
+    "keywords": [
+        "vue",
+        "vuex",
+        "pinia",
+        "nuxt"
+    ],
+    "engines": {
+        "node": "20"
+    },
+    "dependencies": {
+        "chalk": "5.3.0",
+        "vue-codemod": "^0.0.5",
+        "yargs": "^17.7.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.23.2",
+        "@babel/preset-env": "^7.23.2",
+        "@jest/globals": "^29.7.0",
+        "babel-jest": "^29.7.0",
+        "eslint": "^8.56.0",
+        "eslint-config-prettier": "^9.1.0",
+        "jest": "^29.7.0",
+        "nodemon": "^3.0.1",
+        "prettier": "^3.2.5"
+    },
+    "author": "bippan",
+    "license": "MIT",
+    "bin": {
+        "vpc": "src/index.js"
+    }
+}
