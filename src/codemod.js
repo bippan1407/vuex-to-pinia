@@ -5,6 +5,7 @@ import vuexProperties from './vuexProperties/index.js'
 import configOptionsService from './configOptionsService.js'
 import { basename, join } from 'path'
 import { analyseAndUpdate } from './vuexProperties/analyse.js'
+import transform from './transform/index.js'
 
 class Codemod {
     filePath = ''
@@ -49,7 +50,6 @@ class Codemod {
                 }
             }
         )
-        fileSource = fileSource.replace('<script>', '<script setup>')
         let transformFileLocation
         if (
             !options.shouldTransformMainFile &&
@@ -109,10 +109,31 @@ class Codemod {
     }
 
     transform() {
-        const { j, root } = this.transformationObject
-        root.find(j.Identifier).forEach((path) => {
-            // console.log(path)
-        })
+        const stateSyntax = transform.transformState(this.transformationObject)
+        const actionSyntax = transform.transformAction(
+            this.transformationObject
+        )
+        const getterSyntax = transform.transformGetter(
+            this.transformationObject
+        )
+        transform.replaceProperty(
+            this.transformationObject,
+            this.getPiniaTemplate(
+                this.vuexProperties.storeName,
+                stateSyntax,
+                actionSyntax,
+                getterSyntax
+            )
+        )
+        return this.getSource()
+    }
+
+    getPiniaTemplate(storeName, stateSyntax, actionSyntax, getterSyntax) {
+        return `export const use${storeName} = defineStore(${storeName},{
+    state: ${stateSyntax},
+    actions: ${actionSyntax},
+    getters: ${getterSyntax}
+  })`
     }
 }
 
