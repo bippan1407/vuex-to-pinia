@@ -114,12 +114,17 @@ class Codemod {
     }
 
     transform() {
-        const stateSyntax = transform.transformState(this.transformationObject)
+        const stateSyntax = transform.transformState(
+            this.transformationObject,
+            { vuexProperties: this.vuexProperties }
+        )
         const actionSyntax = transform.transformAction(
-            this.transformationObject
+            this.transformationObject,
+            { vuexProperties: this.vuexProperties }
         )
         const getterSyntax = transform.transformGetter(
-            this.transformationObject
+            this.transformationObject,
+            { vuexProperties: this.vuexProperties }
         )
         transform.replaceProperty(
             this.transformationObject,
@@ -135,9 +140,9 @@ class Codemod {
 
     getPiniaTemplate(storeName, stateSyntax, actionSyntax, getterSyntax) {
         return `export const use${capitalizeFirstLetter(storeName)} = defineStore('${storeName}',{
-    state: ${stateSyntax},
-    actions: ${actionSyntax},
-    getters: ${getterSyntax}
+    state: ${stateSyntax !== '' ? stateSyntax : ''},
+    actions: ${actionSyntax !== '' ? actionSyntax : ''},
+    getters: ${getterSyntax !== '' ? getterSyntax : ''}
   })`
     }
 }

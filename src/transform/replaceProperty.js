@@ -2,7 +2,6 @@ export const replaceProperty = ({ root, j }, syntaxToAdd) => {
     const propertiesToReplace = ['state', 'mutations', 'actions', 'getters']
 
     propertiesToReplace.forEach((property) => {
-        console.log(property)
         root.find(j.VariableDeclaration, (path) => {
             if (propertiesToReplace.includes(path.declarations[0].id.name)) {
                 return true

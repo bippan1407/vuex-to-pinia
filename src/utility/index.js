@@ -152,11 +152,20 @@ const writeToJsonFile = (path, writeData) => {
     // }
 }
 
+const findAndUpdate = (arr, predicate, update) => {
+    const foundIndex = arr.findIndex((property) => predicate(property))
+    if (foundIndex !== -1) {
+        let info = { foundIndex, value: arr[foundIndex] }
+        update(info)
+    }
+}
+
 export {
     readJson,
     getFileName,
     writeToJsonFile,
     homeDirectory,
+    findAndUpdate,
     lifecycleHooks,
     addCodeInRegion,
     getFileExtension,
