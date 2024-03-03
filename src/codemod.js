@@ -114,6 +114,12 @@ class Codemod {
     }
 
     transform() {
+        transform.transformThisExpression(this.transformationObject, {
+            vuexProperties: this.vuexProperties,
+        })
+        transform.transformCommitDispatch(this.transformationObject, {
+            vuexProperties: this.vuexProperties,
+        })
         const stateSyntax = transform.transformState(
             this.transformationObject,
             { vuexProperties: this.vuexProperties }

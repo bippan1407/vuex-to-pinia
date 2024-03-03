@@ -18,7 +18,6 @@ export const replaceProperty = ({ root, j }, syntaxToAdd) => {
 
     root.find(j.Program).forEach((path) => {
         const body = j(path).get('body')
-        body.unshift("import { defineStore } from 'pinia';\n")
         body.push(syntaxToAdd)
     })
 }

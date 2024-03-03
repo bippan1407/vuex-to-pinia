@@ -15,7 +15,7 @@ export const transformAction = ({ root, j }, { vuexProperties }) => {
     }).forEach((path) => {
         path.value.init.properties.forEach((property) => {
             findAndUpdate(
-                vuexProperties.actionNames,
+                vuexProperties.mutationNames,
                 (value) => value.name === property.key.name,
                 (found) => {
                     property.key.name = found.value.newName
