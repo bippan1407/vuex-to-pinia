@@ -109,7 +109,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                         })
                     }
                 })
-
+            // replace rootGetter, rootState and import other use pinia modules
             j(property)
                 .find(j.MemberExpression, (path) => {
                     if (
@@ -123,10 +123,17 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                     let [storeName, getterName] =
                         path.value?.property?.value?.split('/') ?? {}
                     const variableDeclarationName = path.parent?.value?.id?.name
+                    const isReassigned = checkIfVariableIsReassigned(
+                        { j, root },
+                        {
+                            path: property,
+                            variableName: variableDeclarationName,
+                        }
+                    )
                     if (storeValues[storeName]?.getterNames) {
                         storeValues[storeName].getterNames.push({
                             name: getterName,
-                            as: variableDeclarationName,
+                            as: isReassigned ? null : variableDeclarationName,
                         })
                     } else {
                         storeImports.add(storeName)
@@ -135,15 +142,22 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                             getterNames: [
                                 {
                                     name: getterName,
-                                    as: variableDeclarationName,
+                                    as: isReassigned
+                                        ? null
+                                        : variableDeclarationName,
                                 },
                             ],
                         }
                     }
-                    if (variableDeclarationName) {
-                        deleteVariableDeclaration({ j, root }, { path })
+                    if (isReassigned) {
+                        j(path).replaceWith(`${getterName}.value`)
                     } else {
-                        j(path).replaceWith(getterName)
+                        deleteVariableDeclaration({ j, root }, { path })
+                        j(property)
+                            .find(j.Identifier, {
+                                name: variableDeclarationName,
+                            })
+                            .replaceWith(`${variableDeclarationName}.value`)
                     }
                 })
             const keys = Object.keys(storeValues)
@@ -310,4 +324,19 @@ const deleteVariableDeclaration = ({ j, root }, { path }) => {
     if (parent.value.type === 'VariableDeclaration') {
         j(parent).replaceWith('')
     }
+}
+
+const checkIfVariableIsReassigned = ({ j, root }, { path, variableName }) => {
+    const expressionStatement = j(path).find(j.ExpressionStatement, {
+        expression: {
+            type: 'AssignmentExpression',
+            left: {
+                type: 'MemberExpression',
+                object: {
+                    name: variableName,
+                },
+            },
+        },
+    })
+    return expressionStatement?.length
 }
