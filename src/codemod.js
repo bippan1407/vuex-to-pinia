@@ -80,7 +80,9 @@ class Codemod {
     }
 
     initialiseVuexProperties() {
-        this.vuexProperties.storeName = basename(this.filePath).split('.')[0]
+        let storeName = basename(this.filePath).split('.')[0]
+        storeName = `${storeName}Store`
+        this.vuexProperties.storeName = storeName
         this.vuexProperties.stateNames = vuexProperties.getStateNames(
             this.transformationObject
         )

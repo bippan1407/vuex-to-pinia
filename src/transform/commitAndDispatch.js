@@ -42,14 +42,14 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                                 storeValues[storeName]?.functionNames &&
                                 actionName
                             ) {
-                                storeValues[storeName].functionNames.push(
-                                    actionName
-                                )
+                                storeValues[storeName].functionNames.push({
+                                    name: actionName,
+                                })
                             } else if (actionName) {
                                 storeImports.add(storeName)
                                 storeValues[storeName] = {
                                     ...(storeValues[storeName] ?? {}),
-                                    functionNames: [actionName],
+                                    functionNames: [{ name: actionName }],
                                 }
                             }
                             if (actionName) {
@@ -121,17 +121,30 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                 })
                 .forEach((path) => {
                     let [storeName, getterName] =
-                        path.value?.property?.value?.split('/')
+                        path.value?.property?.value?.split('/') ?? {}
+                    const variableDeclarationName = path.parent?.value?.id?.name
                     if (storeValues[storeName]?.getterNames) {
-                        storeValues[storeName].getterNames.push(getterName)
+                        storeValues[storeName].getterNames.push({
+                            name: getterName,
+                            as: variableDeclarationName,
+                        })
                     } else {
                         storeImports.add(storeName)
                         storeValues[storeName] = {
                             ...(storeValues[storeName] ?? {}),
-                            getterNames: [getterName],
+                            getterNames: [
+                                {
+                                    name: getterName,
+                                    as: variableDeclarationName,
+                                },
+                            ],
                         }
                     }
-                    j(path).replaceWith(getterName)
+                    if (variableDeclarationName) {
+                        deleteVariableDeclaration({ j, root }, { path })
+                    } else {
+                        j(path).replaceWith(getterName)
+                    }
                 })
             const keys = Object.keys(storeValues)
             let otherVariableDeclaration = []
@@ -205,7 +218,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                     let propertyName = path?.value?.property?.name
                     if (['$axios', '$toast'].includes(propertyName)) {
                         j(path).replaceWith(propertyName)
-                        pluginPropertiesPresent.add(propertyName)
+                        pluginPropertiesPresent.add({ name: propertyName })
                     }
                 })
 
@@ -247,7 +260,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
         importDeclarationStatement(
             { j },
             {
-                importedValues: [`defineStore`],
+                importedValues: ['defineStore', 'storeToRefs'],
                 importPath: `pinia`,
             }
         )
@@ -269,11 +282,11 @@ const constSpreadVariablesDeclarator = (
             j.objectPattern([
                 // Property node representing the destructured property
                 // ...storeValues[key].functionNames.map(functionName => j.property('init', j.identifier(functionName), j.identifier(functionName)))
-                ...(spreadVariableNames?.map((functionName) =>
+                ...(spreadVariableNames?.map(({ name, as }) =>
                     j.property(
                         'init',
-                        j.identifier(functionName),
-                        j.identifier(functionName)
+                        j.identifier(name),
+                        j.identifier(as ? as : name)
                     )
                 ) ?? []),
             ]),
@@ -291,3 +304,10 @@ const importDeclarationStatement = (
         [...importedValues.map((v) => j.importSpecifier(j.identifier(v)))],
         j.literal(importPath)
     )
+
+const deleteVariableDeclaration = ({ j, root }, { path }) => {
+    const parent = path.parent.parent
+    if (parent.value.type === 'VariableDeclaration') {
+        j(parent).replaceWith('')
+    }
+}
