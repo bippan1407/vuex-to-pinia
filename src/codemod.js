@@ -11,6 +11,7 @@ import configOptionsService from './configOptionsService.js'
 import { basename, join } from 'path'
 import { analyseAndUpdate } from './vuexProperties/analyse.js'
 import transform from './transform/index.js'
+import babel from '@babel/core'
 
 class Codemod {
     filePath = ''
@@ -143,7 +144,8 @@ class Codemod {
                 getterSyntax
             )
         )
-        return this.getSource()
+        let newSyntax = this.getSource()
+        return this.runBabelTransformation(newSyntax)
     }
 
     getPiniaTemplate(storeName, stateSyntax, actionSyntax, getterSyntax) {
@@ -152,6 +154,17 @@ class Codemod {
     actions: ${actionSyntax !== '' ? actionSyntax : ''},
     getters: ${getterSyntax !== '' ? getterSyntax : ''}
   })`
+    }
+
+    runBabelTransformation(syntax) {
+        syntax = babel.transformSync(syntax, {
+            plugins: ['@babel/plugin-transform-arrow-functions'],
+        })
+        let code = syntax.code
+        // fix to remove _this that is being added by babel while transforming
+        code = code.replace('var _this = this;\n', '')
+        code = code.replace(/(_this)/g, 'this')
+        return code
     }
 }
 

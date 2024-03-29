@@ -319,14 +319,14 @@ const importDeclarationStatement = (
         j.literal(importPath)
     )
 
-const deleteVariableDeclaration = ({ j, root }, { path }) => {
+const deleteVariableDeclaration = ({ j }, { path }) => {
     const parent = path.parent.parent
     if (parent.value.type === 'VariableDeclaration') {
         j(parent).replaceWith('')
     }
 }
 
-const checkIfVariableIsReassigned = ({ j, root }, { path, variableName }) => {
+const checkIfVariableIsReassigned = ({ j }, { path, variableName }) => {
     const expressionStatement = j(path).find(j.ExpressionStatement, {
         expression: {
             type: 'AssignmentExpression',

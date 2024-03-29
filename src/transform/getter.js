@@ -15,6 +15,10 @@ export const transformGetter = ({ root, j }, { vuexProperties }) => {
                     property.key.name = found.value.newName
                 }
             )
+            // remove commits, actions, getters and others from params
+            if (property.value.params.length) {
+                property.value.params.shift()
+            }
         })
         getterSyntax = j(path.value.init).toSource()
     })

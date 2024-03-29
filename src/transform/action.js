@@ -1,5 +1,4 @@
 import { findAndUpdate } from '../utility/index.js'
-
 export const transformAction = ({ root, j }, { vuexProperties }) => {
     let actionSyntax = ''
     let actions = root.find(j.VariableDeclarator, {
@@ -8,6 +7,12 @@ export const transformAction = ({ root, j }, { vuexProperties }) => {
         },
     })
     actions = actions.get()
+    // remove commits, actions, getters and others from params
+    actions.value.init.properties.forEach((action) => {
+        if (action.value.params.length) {
+            action.value.params.shift()
+        }
+    })
     root.find(j.VariableDeclarator, {
         id: {
             name: 'mutations',

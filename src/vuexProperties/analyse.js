@@ -1,21 +1,3 @@
-// const changeMutationNamesIfExistsInActions = (json) => {
-//     const mutationNames = json['mutationNames']
-//     const actionNames = json['actionNames']
-//     mutationNames.forEach((mutation) => {
-//         const actionIndex = actionNames.findIndex(
-//             (action) => action.name === mutation.name
-//         )
-//         let newName = ''
-//         if (actionIndex !== -1) {
-//             newName = `${mutation.name}Mutation`
-//         } else {
-//             newName = mutation.name
-//         }
-//         mutation.newName = newName
-//     })
-//     return json
-// }
-
 const changePropertiesWithSameName = (json) => {
     const propertiesToIterate = [
         'stateNames',
@@ -75,7 +57,6 @@ const findAndUpdate = (
 }
 
 const analyseAndUpdate = (json) => {
-    // json = changeMutationNamesIfExistsInActions(json)
     json = changePropertiesWithSameName(json)
     return json
 }
