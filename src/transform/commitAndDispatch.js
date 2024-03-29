@@ -1,7 +1,7 @@
 import { capitalizeFirstLetter } from '../utility/index.js'
 
 export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
-    const storeImports = new Set()
+    const storeImports = new Map()
     const mutationNames = vuexProperties.mutationNames.map(
         (value) => value.name
     )
@@ -46,7 +46,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                                     name: actionName,
                                 })
                             } else if (actionName) {
-                                storeImports.add(storeName)
+                                storeImports.set(storeName, storeName)
                                 storeValues[storeName] = {
                                     ...(storeValues[storeName] ?? {}),
                                     functionNames: [{ name: actionName }],
@@ -120,8 +120,17 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                     return false
                 })
                 .forEach((path) => {
+                    let isSlashSyntax = true
                     let [storeName, getterName] =
-                        path.value?.property?.value?.split('/') ?? {}
+                        path.value?.property?.value?.split('/') ?? []
+                    if (!storeName && !getterName) {
+                        storeName = path.value?.property?.name
+                        getterName = path.parent?.value?.property?.name
+                        isSlashSyntax = false
+                    }
+                    if (!storeName && !getterName) {
+                        return
+                    }
                     const variableDeclarationName = path.parent?.value?.id?.name
                     const isReassigned = checkIfVariableIsReassigned(
                         { j, root },
@@ -136,7 +145,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                             as: isReassigned ? null : variableDeclarationName,
                         })
                     } else {
-                        storeImports.add(storeName)
+                        storeImports.set(storeName, storeName)
                         storeValues[storeName] = {
                             ...(storeValues[storeName] ?? {}),
                             getterNames: [
@@ -149,15 +158,19 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                             ],
                         }
                     }
-                    if (isReassigned) {
+                    if (!isSlashSyntax) {
+                        j(path.parent).replaceWith(`${getterName}.value`)
+                    } else if (isReassigned) {
                         j(path).replaceWith(`${getterName}.value`)
-                    } else {
+                    } else if (variableDeclarationName) {
                         deleteVariableDeclaration({ j, root }, { path })
                         j(property)
                             .find(j.Identifier, {
                                 name: variableDeclarationName,
                             })
                             .replaceWith(`${variableDeclarationName}.value`)
+                    } else {
+                        j(path).replaceWith(`${getterName}.value`)
                     }
                 })
             const keys = Object.keys(storeValues)
@@ -184,13 +197,21 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                     ])
                     otherVariableDeclaration.push(varDeclarationStore)
                     try {
+                        const uniqueFunctionNames = [
+                            ...new Map(
+                                storeValues[key].functionNames.map((obj) => [
+                                    obj.name,
+                                    obj,
+                                ])
+                            ).values(),
+                        ]
                         if (storeValues[key].functionNames) {
                             const varDeclarationStoreFunction =
                                 constSpreadVariablesDeclarator(
                                     { j },
                                     {
                                         spreadVariableNames:
-                                            storeValues[key].functionNames,
+                                            uniqueFunctionNames,
                                         declaredValue: storeDeclaration,
                                     }
                                 )
@@ -198,13 +219,21 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                                 varDeclarationStoreFunction
                             )
                         }
+                        const uniqueStoreGetterNames = [
+                            ...new Map(
+                                storeValues[key].getterNames.map((obj) => [
+                                    obj.name,
+                                    obj,
+                                ])
+                            ).values(),
+                        ]
                         if (storeValues[key].getterNames) {
                             const varDeclarationStoreGetter =
                                 constSpreadVariablesDeclarator(
                                     { j },
                                     {
                                         spreadVariableNames:
-                                            storeValues[key].getterNames,
+                                            uniqueStoreGetterNames,
                                         declaredValue: `storeToRefs(${storeDeclaration})`,
                                     }
                                 )
@@ -221,7 +250,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                 })
             }
 
-            let pluginPropertiesPresent = new Set()
+            let pluginPropertiesPresent = new Map()
             j(property)
                 .find(j.MemberExpression, {
                     object: {
@@ -232,11 +261,15 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                     let propertyName = path?.value?.property?.name
                     if (['$axios', '$toast'].includes(propertyName)) {
                         j(path).replaceWith(propertyName)
-                        pluginPropertiesPresent.add({ name: propertyName })
+                        pluginPropertiesPresent.set(propertyName, {
+                            name: propertyName,
+                        })
                     }
                 })
 
-            pluginPropertiesPresent = Array.from(pluginPropertiesPresent)
+            pluginPropertiesPresent = Array.from(
+                pluginPropertiesPresent.values()
+            )
             if (pluginPropertiesPresent.length) {
                 const nuxtPropertiesVariableDeclaration =
                     constSpreadVariablesDeclarator(
@@ -259,7 +292,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
 
     // add imports
     const importDeclaration = []
-    Array.from(storeImports).forEach((value) => {
+    Array.from(storeImports.values()).forEach((value) => {
         // const importValue = `import { use${capitalizeFirstLetter(value)}Store } from '~/store/${value}';\n`
         const importDeclarationValue = importDeclarationStatement(
             { j },

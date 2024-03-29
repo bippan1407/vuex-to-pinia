@@ -150,9 +150,9 @@ class Codemod {
 
     getPiniaTemplate(storeName, stateSyntax, actionSyntax, getterSyntax) {
         return `export const use${capitalizeFirstLetter(storeName)} = defineStore('${storeName}',{
-    state: ${stateSyntax !== '' ? stateSyntax : ''},
-    actions: ${actionSyntax !== '' ? actionSyntax : ''},
-    getters: ${getterSyntax !== '' ? getterSyntax : ''}
+    state: ${stateSyntax !== '' ? stateSyntax : '{}'},
+    actions: ${actionSyntax !== '' ? actionSyntax : '{}'},
+    getters: ${getterSyntax !== '' ? getterSyntax : '{}'}
   })`
     }
 

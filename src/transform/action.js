@@ -6,10 +6,13 @@ export const transformAction = ({ root, j }, { vuexProperties }) => {
             name: 'actions',
         },
     })
+    if (!actions.length) {
+        return actionSyntax
+    }
     actions = actions.get()
     // remove commits, actions, getters and others from params
     actions.value.init.properties.forEach((action) => {
-        if (action.value.params.length) {
+        if (action.value.params?.length) {
             action.value.params.shift()
         }
     })
