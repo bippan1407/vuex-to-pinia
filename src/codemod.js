@@ -12,6 +12,7 @@ import { basename, join } from 'path'
 import { analyseAndUpdate } from './vuexProperties/analyse.js'
 import transform from './transform/index.js'
 import babel from '@babel/core'
+import chalk from 'chalk'
 
 class Codemod {
     filePath = ''
@@ -21,6 +22,8 @@ class Codemod {
         root: null,
     }
     vuexProperties = {
+        filename: '',
+        vuexStoreName: '',
         storeName: '',
         stateNames: [],
         mutationNames: [],
@@ -81,7 +84,10 @@ class Codemod {
     }
 
     initialiseVuexProperties() {
-        let storeName = basename(this.filePath).split('.')[0]
+        const filename = basename(this.filePath)
+        this.vuexProperties.filename = filename
+        let storeName = filename.split('.')[0]
+        this.vuexProperties.vuexStoreName = storeName
         storeName = `${storeName}Store`
         this.vuexProperties.storeName = storeName
         this.vuexProperties.stateNames = vuexProperties.getStateNames(
@@ -112,6 +118,7 @@ class Codemod {
             fileLocation = configOptions.saveVuexPropertiesFileLocation
         }
         const readFile = readJson(fileLocation)
+
         readFile[this.filePath] = this.vuexProperties
         writeToJsonFile(fileLocation, readFile)
     }
@@ -157,14 +164,23 @@ class Codemod {
     }
 
     runBabelTransformation(syntax) {
-        syntax = babel.transformSync(syntax, {
-            plugins: ['@babel/plugin-transform-arrow-functions'],
-        })
-        let code = syntax.code
-        // fix to remove _this that is being added by babel while transforming
-        code = code.replace('var _this = this;\n', '')
-        code = code.replace(/(_this)/g, 'this')
-        return code
+        try {
+            syntax = babel.transformSync(syntax, {
+                plugins: ['@babel/plugin-transform-arrow-functions'],
+            })
+            let code = syntax.code
+            // fix to remove _this that is being added by babel while transforming
+            code = code.replace('var _this = this;\n', '')
+            code = code.replace(/(_this)/g, 'this')
+            return code
+        } catch (error) {
+            console.log(
+                chalk.red(
+                    `Babel transformation could not be run on file ${this.fileInfo.path} `
+                )
+            )
+            return syntax
+        }
     }
 }
 
