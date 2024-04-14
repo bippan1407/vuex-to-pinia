@@ -8,14 +8,9 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/"
-            ],
+            "skipFiles": ["<node_internals>/"],
             "program": "${workspaceFolder}/src/index.js",
-            "args": [
-                "--configLocation",
-                "/Users/bippan/Documents/code/vuex-to-pinia/migration.config.json"
-            ]
+            "args": ["--configLocation", "./migration.config.json"]
         }
     ]
 }

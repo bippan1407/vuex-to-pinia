@@ -199,7 +199,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                     try {
                         const uniqueFunctionNames = [
                             ...new Map(
-                                storeValues[key].functionNames.map((obj) => [
+                                storeValues[key].functionNames?.map((obj) => [
                                     obj.name,
                                     obj,
                                 ])
@@ -221,7 +221,7 @@ export const transformCommitDispatch = ({ root, j }, { vuexProperties }) => {
                         }
                         const uniqueStoreGetterNames = [
                             ...new Map(
-                                storeValues[key].getterNames.map((obj) => [
+                                storeValues[key].getterNames?.map((obj) => [
                                     obj.name,
                                     obj,
                                 ])

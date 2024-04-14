@@ -28,8 +28,11 @@ export const transformAction = ({ root, j }, { vuexProperties }) => {
                 (found) => {
                     property.key.name = found.value.newName
                 }
-            ),
-                actions.value.init.properties.unshift(property)
+            )
+            if (property.value.params.length) {
+                property.value.params.shift()
+            }
+            actions.value.init.properties.unshift(property)
         })
     })
 

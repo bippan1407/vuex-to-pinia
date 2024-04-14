@@ -7,8 +7,7 @@ let configOptions = {
     emptyTransformFolder: false,
     saveErrorLogs: false,
     saveErrorLogsFilePath: '',
-    saveVuexPropertiesFileLocation:
-        '/Users/bippan/Documents/code/vuex-to-pinia',
+    saveVuexPropertiesFileLocation: '',
 }
 
 function configOptionsService() {
