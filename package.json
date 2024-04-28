@@ -39,6 +39,7 @@
     "author": "bippan",
     "license": "MIT",
     "bin": {
+        "vuex-to-pinia": "src/index.js",
         "vpc": "src/index.js"
     }
 }
