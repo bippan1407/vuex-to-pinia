@@ -38,7 +38,7 @@
     "license": "MIT",
     "bin": {
         "vuex-to-pinia": "src/index.js",
-        "vpc": "src/index.js"
+        "vtp": "src/index.js"
     },
     "repository": {
         "type": "git",
