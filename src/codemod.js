@@ -13,7 +13,7 @@ import { analyseAndUpdate } from './vuexProperties/analyse.js'
 import transform from './transform/index.js'
 import babel from '@babel/core'
 import chalk from 'chalk'
-
+import pluginTransformArrowFunction from '@babel/plugin-transform-arrow-functions'
 class Codemod {
     filePath = ''
     fileInfo
@@ -166,7 +166,7 @@ class Codemod {
     runBabelTransformation(syntax) {
         try {
             syntax = babel.transformSync(syntax, {
-                plugins: ['@babel/plugin-transform-arrow-functions'],
+                plugins: [pluginTransformArrowFunction],
             })
             let code = syntax.code
             // fix to remove _this that is being added by babel while transforming
@@ -174,6 +174,11 @@ class Codemod {
             code = code.replace(/(_this)/g, 'this')
             return code
         } catch (error) {
+            if (configOptionsService().get().saveErrorLogs) {
+                console.log(' ---- START Error in babel transformation -----')
+                console.log(error)
+                console.log(' ---- END Error in babel transformation -----')
+            }
             console.log(
                 chalk.red(
                     `Babel transformation could not be run on file ${this.fileInfo.path} `
