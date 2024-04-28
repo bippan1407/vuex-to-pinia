@@ -1,6 +1,6 @@
 {
     "name": "vuex-to-pinia",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "convert code from vuex to pinia",
     "main": "index.js",
     "type": "module",
