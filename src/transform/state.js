@@ -2,7 +2,6 @@ export const transformState = ({ root, j }) => {
     let stateSyntax = ''
     const rootNode = root.get()
     let stateNode = rootNode.value.program.body.find((value) => {
-        console.log(value)
         if (
             value?.declaration?.declarations?.[0]?.id?.name === 'state' ||
             value?.declarations?.[0]?.id?.name === 'state'
