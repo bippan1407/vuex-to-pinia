@@ -41,5 +41,9 @@
     "bin": {
         "vuex-to-pinia": "src/index.js",
         "vpc": "src/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bippan1407/vuex-to-pinia"
     }
 }
